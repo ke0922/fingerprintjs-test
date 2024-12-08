@@ -1,31 +1,35 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FingerprintJS 測試</title>
+  <title>裝置指紋測試</title>
 </head>
 <body>
-  <h1>FingerprintJS 訪客標識符測試</h1>
-  <p>請打開開發者工具（F12）查看控制台輸出。</p>
+  <h1>裝置指紋測試</h1>
+  <p>您的裝置指紋是：</p>
+  <div id="fingerprint" style="font-weight: bold; color: blue;">載入中...</div>
 
+  <script
+    async
+    src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"
+  ></script>
   <script>
+    // 初始化 FingerprintJS 並顯示指紋
     function initFingerprintJS() {
       FingerprintJS.load().then(fp => {
-        // FingerprintJS 初始化完成
         fp.get().then(result => {
-          // 訪客唯一標識符
+          // 獲取指紋 ID
           const visitorId = result.visitorId;
-          console.log("訪客唯一 ID:", visitorId);
-          alert("您的訪客唯一 ID 為: " + visitorId);
+
+          // 在網頁上顯示指紋
+          document.getElementById('fingerprint').innerText = visitorId;
         });
       });
     }
+
+    // 當頁面加載時執行
+    window.onload = initFingerprintJS;
   </script>
-  <script
-    async
-    src="//cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"
-    onload="initFingerprintJS()"
-  ></script>
 </body>
 </html>
