@@ -16,12 +16,43 @@
         fp.get().then(result => {
           // 訪客唯一標識符
           const visitorId = result.visitorId;
+          const confidence = result.confidence.score; // 可信度分數
+          const userAgent = navigator.userAgent; // 用戶代理（瀏覽器）
+
           console.log("訪客唯一 ID:", visitorId);
           alert("您的訪客唯一 ID 為: " + visitorId);
+
+          // 將指紋數據發送到伺服器
+          const fingerprintData = {
+            visitorId: visitorId,
+            confidence: confidence,
+            userAgent: userAgent
+          };
+
+          // 使用 fetch 發送 POST 請求到伺服器
+          fetch('http://localhost:3000/fingerprints', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(fingerprintData) // 將指紋數據傳遞給伺服器
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              console.log('指紋數據成功上傳');
+            } else {
+              console.log('指紋數據上傳失敗');
+            }
+          })
+          .catch(error => {
+            console.error('發送請求時出錯:', error);
+          });
         });
       });
     }
   </script>
+
   <script
     async
     src="//cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"
