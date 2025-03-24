@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>簡化版瀏覽器指紋收集工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .item {
+            margin-bottom: 10px;
+        }
+        .item strong {
+            display: inline-block;
+            width: 200px;
+            color: #555;
+        }
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>簡化版瀏覽器指紋收集工具</h1>
+        <p>此工具將收集您瀏覽器的基本指紋資訊，僅供教育和研究目的使用。</p>
+        
+        <button id="collectBtn">收集指紋資訊</button>
+        
+        <div class="section">
+            <h2>基本資訊</h2>
+            <div id="basicInfo"></div>
+        </div>
+        
+        <div class="section">
+            <h2>瀏覽器和系統資訊</h2>
+            <div id="browserInfo"></div>
+        </div>
+        
+        <div class="section">
+            <h2>螢幕和視窗資訊</h2>
+            <div id="screenInfo"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Canvas 指紋</h2>
+            <div id="canvasInfo"></div>
+            <canvas id="canvasFingerprint" width="300" height="150"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // 等待頁面完全載入
+        window.onload = function() {
+            // 為按鈕添加點擊事件
+            document.getElementById('collectBtn').onclick = function() {
+                collectAllInfo();
+            };
+        };
+
+        // 收集所有資訊的主函數
+        function collectAllInfo() {
+            collectBasicInfo();
+            collectBrowserInfo();
+            collectScreenInfo();
+            collectCanvasFingerprint();
+        }
+
+        // 添加資訊項目的輔助函數
+        function addItem(containerId, label, value) {
+            const container = document.getElementById(containerId);
+            const item = document.createElement('div');
+            item.className = 'item';
+            item.innerHTML = `<strong>${label}:</strong> <span>${value}</span>`;
+            container.appendChild(item);
+        }
+
+        // 收集基本資訊
+        function collectBasicInfo() {
+            const container = document.getElementById('basicInfo');
+            container.innerHTML = ''; // 清空容器
+            
+            const date = new Date();
+            addItem('basicInfo', '當前時間', date.toString());
+            addItem('basicInfo', '時區偏移', `UTC ${date.getTimezoneOffset() / -60}`);
+            addItem('basicInfo', '瀏覽器語言', navigator.language || '未知');
+            addItem('basicInfo', 'Cookie 啟用', navigator.cookieEnabled ? '是' : '否');
+            addItem('basicInfo', 'Do Not Track', navigator.doNotTrack || '未設定');
+        }
+
+        // 收集瀏覽器和系統資訊
+        function collectBrowserInfo() {
+            const container = document.getElementById('browserInfo');
+            container.innerHTML = ''; // 清空容器
+            
+            addItem('browserInfo', 'User Agent', navigator.userAgent);
+            addItem('browserInfo', '平台', navigator.platform);
+            addItem('browserInfo', '瀏覽器供應商', navigator.vendor || '未知');
+            addItem('browserInfo', '瀏覽器名稱', getBrowserName());
+            addItem('browserInfo', '操作系統', getOSName());
+        }
+
+        // 收集螢幕和視窗資訊
+        function collectScreenInfo() {
+            const container = document.getElementById('screenInfo');
+            container.innerHTML = ''; // 清空容器
+            
+            addItem('screenInfo', '螢幕寬度', screen.width);
+            addItem('screenInfo', '螢幕高度', screen.height);
+            addItem('screenInfo', '可用螢幕寬度', screen.availWidth);
+            addItem('screenInfo', '可用螢幕高度', screen.availHeight);
+            addItem('screenInfo', '色彩深度', screen.colorDepth);
+            addItem('screenInfo', '像素深度', screen.pixelDepth);
+            addItem('screenInfo', '視窗內部寬度', window.innerWidth);
+            addItem('screenInfo', '視窗內部高度', window.innerHeight);
+            addItem('screenInfo', '裝置像素比', window.devicePixelRatio || '不支援');
+        }
+
+        // 收集 Canvas 指紋
+        function collectCanvasFingerprint() {
+            const container = document.getElementById('canvasInfo');
+            container.innerHTML = ''; // 清空容器
+            
+            const canvas = document.getElementById('canvasFingerprint');
+            const ctx = canvas.getContext('2d');
+            
+            // 清空 Canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 繪製文字
+            ctx.textBaseline = "top";
+            ctx.font = "14px 'Arial'";
+            ctx.fillStyle = "#f60";
+            ctx.fillRect(125, 1, 62, 20);
+            ctx.fillStyle = "#069";
+            ctx.fillText("Fingerprint", 2, 15);
+            ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
+            ctx.fillText("Canvas", 4, 45);
+            
+            // 繪製圖形
+            ctx.fillRect(0, 0, 10, 10);
+            ctx.fillRect(50, 50, 50, 10);
+            ctx.fillStyle = "#f06";
+            ctx.arc(50, 50, 25, 0, Math.PI * 2, true);
+            ctx.fill();
+            
+            // 獲取 Canvas 資料
+            try {
+                const dataURL = canvas.toDataURL();
+                const hash = simpleHash(dataURL);
+                addItem('canvasInfo', 'Canvas 指紋雜湊值', hash);
+            } catch (e) {
+                addItem('canvasInfo', 'Canvas 指紋', '無法獲取 (可能是跨域限制)');
+            }
+        }
+
+        // 簡單的雜湊函數
+        function simpleHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // 轉換為 32 位整數
+            }
+            return hash.toString(16); // 轉換為 16 進制
+        }
+
+        // 獲取瀏覽器名稱
+        function getBrowserName() {
+            const userAgent = navigator.userAgent;
+            
+            if (userAgent.indexOf("Firefox") > -1) {
+                return "Firefox";
+            } else if (userAgent.indexOf("Chrome") > -1 && userAgent.indexOf("Edge") === -1 && userAgent.indexOf("Edg") === -1) {
+                return "Chrome";
+            } else if (userAgent.indexOf("Safari") > -1 && userAgent.indexOf("Chrome") === -1) {
+                return "Safari";
+            } else if (userAgent.indexOf("Edge") > -1 || userAgent.indexOf("Edg") > -1) {
+                return "Edge";
+            } else if (userAgent.indexOf("MSIE") > -1 || userAgent.indexOf("Trident") > -1) {
+                return "Internet Explorer";
+            } else if (userAgent.indexOf("Opera") > -1 || userAgent.indexOf("OPR") > -1) {
+                return "Opera";
+            } else {
+                return "未知";
+            }
+        }
+
+        // 獲取操作系統名稱
+        function getOSName() {
+            const userAgent = navigator.userAgent;
+            
+            if (userAgent.indexOf("Win") !== -1) {
+                return "Windows";
+            } else if (userAgent.indexOf("Mac") !== -1) {
+                return "macOS";
+            } else if (userAgent.indexOf("Android") !== -1) {
+                return "Android";
+            } else if (userAgent.indexOf("Linux") !== -1) {
+                return "Linux";
+            } else if (userAgent.indexOf("iPhone") !== -1 || userAgent.indexOf("iPad") !== -1 || userAgent.indexOf("iPod") !== -1) {
+                return "iOS";
+            } else {
+                return "未知";
+            }
+        }
+    </script>
+</body>
+</html>
